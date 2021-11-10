@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Time table</string>
+    <string name="duration_mins">%1$d мин</string>
 </resources>
