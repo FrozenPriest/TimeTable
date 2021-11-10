@@ -1,5 +1,9 @@
 package com.frozenpriest.data.local
 
+import android.content.Context
+import androidx.core.content.ContextCompat
+import com.frozenpriest.R
+
 data class Record(
     val name: String,
     val time: Int,
@@ -9,11 +13,25 @@ data class Record(
     val type: RecordType
 )
 
-fun makeNoShiftRecord(time: Int, duration: Int) =
-    Record("Нет смены", time, duration, 0xD8D8D8, 0xF0F0F0, RecordType.EMPTY)
+fun makeNoShiftRecord(context: Context, time: Int, duration: Int) =
+    Record(
+        "Нет смены",
+        time,
+        duration,
+        ContextCompat.getColor(context, R.color.divider_empty),
+        ContextCompat.getColor(context, R.color.no_record_background),
+        RecordType.EMPTY
+    )
 
-fun makeEmptyRecord(time: Int, duration: Int) =
-    Record("Свободно", time, duration, 0xF2F2F2, 0xF2F2F2, RecordType.EMPTY)
+fun makeEmptyRecord(context: Context, time: Int, duration: Int) =
+    Record(
+        "Свободно",
+        time,
+        duration,
+        ContextCompat.getColor(context, R.color.divider_no_shift),
+        ContextCompat.getColor(context, R.color.divider_no_shift),
+        RecordType.EMPTY
+    )
 
 enum class RecordType {
     EMPTY, OCCUPIED

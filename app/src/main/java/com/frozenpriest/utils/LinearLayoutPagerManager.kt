@@ -6,7 +6,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.roundToInt
 
-class LinearLayoutPagerManager(context: Context, orientation: Int, reverseLayout: Boolean, private val itemsPerPage: Int) : LinearLayoutManager(context, orientation, reverseLayout) {
+class LinearLayoutPagerManager(
+    context: Context,
+    orientation: Int,
+    reverseLayout: Boolean,
+    private val itemsPerPage: Int
+) : LinearLayoutManager(context, orientation, reverseLayout) {
 
     override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
         return super.checkLayoutParams(lp) && lp!!.width == getItemSize()

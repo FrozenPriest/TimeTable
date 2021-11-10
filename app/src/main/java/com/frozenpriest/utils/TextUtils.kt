@@ -1,12 +1,11 @@
 package com.frozenpriest.utils
 
-import java.util.*
-
 object TextUtils {
     fun formatTimePeriod(time: Int, duration: Int): String {
         return formatTime(time) + " - " + formatTime(time + duration)
     }
 
+    @Suppress("MagicNumber")
     fun formatTime(time: Int): String {
         val hour = time / 3600
         val minute = (time - hour * 3600) / 60

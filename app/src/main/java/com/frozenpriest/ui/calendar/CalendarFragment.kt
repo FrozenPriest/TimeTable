@@ -30,16 +30,16 @@ class CalendarFragment : Fragment(R.layout.calendar_fragment) {
         binding = CalendarFragmentBinding.bind(view)
 
         viewModel = ViewModelProvider(this)[CalendarViewModel::class.java]
-        // TODO: Use the ViewModel
+
         setupRecyclerViews()
     }
-
+    @Suppress("MagicNumber")
     fun setupRecyclerViews() {
         val records = listOf(
-            makeEmptyRecord(24000, 120),
+            makeEmptyRecord(requireContext(), 24000, 120),
             Record("No name", 36000, 60, Color.RED, Color.GRAY, RecordType.OCCUPIED),
             Record("No name1", 36400, 20, Color.RED, Color.GRAY, RecordType.OCCUPIED),
-            makeNoShiftRecord(48000, 245),
+            makeNoShiftRecord(requireContext(), 48000, 245),
             Record("No name2", 36500, 10, Color.RED, Color.GRAY, RecordType.OCCUPIED),
             Record("No name3", 36200, 70, Color.RED, Color.GRAY, RecordType.OCCUPIED),
         )
