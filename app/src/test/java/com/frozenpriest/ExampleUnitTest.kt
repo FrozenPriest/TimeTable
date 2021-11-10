@@ -1,4 +1,4 @@
-package com.template
+package com.frozenpriest
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
