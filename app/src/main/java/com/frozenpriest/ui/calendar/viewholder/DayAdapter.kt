@@ -67,7 +67,7 @@ class DayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val layout: ConstraintLayout = view.findViewById(R.id.constraintLayout)
-        private val divider: View = view.findViewById(R.id.divider)
+        private val divider: View = view.findViewById(R.id.dividerMarker)
         private val textViewName: TextView = view.findViewById(R.id.textViewName)
         private val textViewTime: TextView = view.findViewById(R.id.textViewStartTime)
 
@@ -84,7 +84,7 @@ class DayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     inner class FilledViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val layout: ConstraintLayout = view.findViewById(R.id.constraintLayout)
-        private val divider: View = view.findViewById(R.id.divider)
+        private val divider: View = view.findViewById(R.id.dividerMarker)
         private val textViewName: TextView = view.findViewById(R.id.textViewName)
         private val textViewTime: TextView = view.findViewById(R.id.textViewStartTime)
         private val textViewDuration: TextView = view.findViewById(R.id.textViewStartDuration)

@@ -44,7 +44,7 @@ class CalendarFragment : Fragment(R.layout.calendar_fragment) {
             Record("No name3", 36200, 70, Color.RED, Color.GRAY, RecordType.OCCUPIED),
         )
 
-        binding.rvMonday.apply {
+        binding.monday.rvRecords.apply {
             adapter = DayAdapter().apply {
                 setRecords(records)
             }
