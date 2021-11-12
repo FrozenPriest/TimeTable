@@ -66,4 +66,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.ext.versions.espresso"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$rootProject.ext.versions.compose"
     debugImplementation "androidx.compose.ui:ui-tooling:$rootProject.ext.versions.compose"
+
+    implementation 'com.google.code.gson:gson:2.8.9'
 }

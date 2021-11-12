@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.frozenpriest.R
 import com.frozenpriest.data.local.Record
 import com.frozenpriest.data.local.RecordType
@@ -44,12 +45,21 @@ class CalendarFragment : Fragment(R.layout.calendar_fragment) {
             Record("No name3", 36200, 70, Color.RED, Color.GRAY, RecordType.OCCUPIED),
         )
 
-        binding.monday.rvRecords.apply {
+        setupDayRecyclerView(binding.monday.rvRecords, records)
+        setupDayRecyclerView(binding.tuesday.rvRecords, records)
+        setupDayRecyclerView(binding.wednesday.rvRecords, records)
+        setupDayRecyclerView(binding.thursday.rvRecords, records)
+        setupDayRecyclerView(binding.friday.rvRecords, records)
+        setupDayRecyclerView(binding.saturday.rvRecords, records)
+        setupDayRecyclerView(binding.sunday.rvRecords, records)
+    }
+    private fun setupDayRecyclerView(recyclerView: RecyclerView, records: List<Record>, itemsPerPade: Int = 6) {
+        recyclerView.apply {
             adapter = DayAdapter().apply {
                 setRecords(records)
             }
             layoutManager = LinearLayoutPagerManager(
-                context, LinearLayoutManager.HORIZONTAL, false, 6
+                context, LinearLayoutManager.HORIZONTAL, false, itemsPerPade
             )
             addItemDecoration(MarginItemDecoration(resources.getDimension(R.dimen.day_padding).toInt()))
         }
