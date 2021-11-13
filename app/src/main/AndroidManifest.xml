@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppTheme">
         <activity
-            android:name="com.frozenpriest.MainActivity"
+            android:name="com.frozenpriest.ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppTheme.NoActionBar">
