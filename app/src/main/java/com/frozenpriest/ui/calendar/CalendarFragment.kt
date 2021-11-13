@@ -3,7 +3,6 @@ package com.frozenpriest.ui.calendar
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,10 +13,11 @@ import com.frozenpriest.data.local.makeEmptyRecord
 import com.frozenpriest.data.local.makeNoShiftRecord
 import com.frozenpriest.databinding.CalendarFragmentBinding
 import com.frozenpriest.ui.calendar.viewholder.DayAdapter
+import com.frozenpriest.ui.common.BaseFragment
 import com.frozenpriest.utils.LinearLayoutPagerManager
 import com.frozenpriest.utils.MarginItemDecoration
 
-class CalendarFragment : Fragment(R.layout.calendar_fragment) {
+class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
 
     companion object {
         fun newInstance() = CalendarFragment()
