@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.frozenpriest.timetable"
-        minSdk 21
+        minSdk 24
         targetSdk 31
         versionCode 1
         versionName "1.0"
@@ -88,5 +88,8 @@ dependencies {
     def dagger_version = "2.37"
     api "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
+    //timber
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 
 }

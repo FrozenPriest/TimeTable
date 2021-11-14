@@ -31,6 +31,12 @@ class AppModule(val application: Application) {
 
     @AppScope
     @Provides
+    fun provideUrlProvider(): UrlProvider {
+        return UrlProvider()
+    }
+
+    @AppScope
+    @Provides
     fun provideOkHttpClient(): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BASIC

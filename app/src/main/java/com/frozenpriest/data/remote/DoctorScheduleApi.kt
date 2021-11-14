@@ -11,6 +11,7 @@ interface DoctorScheduleApi {
     @GET("api/demo/schedule")
     suspend fun getDoctorSchedule(
         @Query("id") id: Int,
+        @Query("week") week: Int,
         @Query("month") month: Int,
         @Query("year") year: Int
     ): ScheduleResponse
