@@ -39,7 +39,7 @@ class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
             setupRecyclerViews(emptyList())
         }
     }
-    fun setupRecyclerViews(records: List<Record>) {
+    private fun setupRecyclerViews(records: List<Record>) {
 
         setupDayRecyclerView(binding.monday.rvRecords, records)
         setupDayRecyclerView(binding.tuesday.rvRecords, records)
