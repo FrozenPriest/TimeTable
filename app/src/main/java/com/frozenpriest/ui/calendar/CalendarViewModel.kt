@@ -4,8 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.frozenpriest.data.remote.response.DoctorSchedule
+import com.frozenpriest.data.local.LocalDoctorSchedule
+import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
+import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
+import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCase
+import com.frozenpriest.domain.usecase.FormatScheduleUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.ui.common.viewmodels.SavedStateViewModel
 import kotlinx.coroutines.launch
@@ -16,11 +20,16 @@ import javax.inject.Inject
 
 class CalendarViewModel @Inject constructor(
     private val getCurrentDayUseCase: GetCurrentDayUseCase,
-    private val fetchScheduleUseCase: FetchScheduleUseCase
+    private val fetchAvailablePeriodsUseCase: FetchAvailablePeriodsUseCase,
+    private val fetchAvailableStatusesUseCase: FetchAvailableStatusesUseCase,
+    private val fetchAvailableTypesUseCase: FetchAvailableTypesUseCase,
+    private val fetchScheduleUseCase: FetchScheduleUseCase,
+    private val formatScheduleUseCase: FormatScheduleUseCase,
+
 ) : SavedStateViewModel() {
 
-    private lateinit var _schedule: MutableLiveData<DoctorSchedule>
-    val schedule: LiveData<DoctorSchedule> get() = _schedule
+    private lateinit var _schedule: MutableLiveData<LocalDoctorSchedule>
+    val schedule: LiveData<LocalDoctorSchedule> get() = _schedule
 
     private lateinit var _currentDate: MutableLiveData<Date>
     val currentDate: LiveData<Date> get() = _currentDate
@@ -47,8 +56,20 @@ class CalendarViewModel @Inject constructor(
                 Calendar.getInstance().get(Calendar.YEAR),
             )
 
+            val availablePeriods = fetchAvailablePeriodsUseCase()
+            val availableStatuses = fetchAvailableStatusesUseCase()
+            val availableTypes = fetchAvailableTypesUseCase()
+
             result.fold(
-                onSuccess = { _schedule.value = it },
+                onSuccess = { newSchedule ->
+                    _schedule.value = formatScheduleUseCase(
+                        doctorSchedule = newSchedule,
+                        // later should take default from room
+                        availablePeriods = availablePeriods.getOrDefault(emptyList()),
+                        availableStatuses = availableStatuses.getOrDefault(emptyList()),
+                        availableTypes = availableTypes.getOrDefault(emptyList())
+                    )
+                },
                 onFailure = { Timber.e("Error loading schedule") }
             )
         }

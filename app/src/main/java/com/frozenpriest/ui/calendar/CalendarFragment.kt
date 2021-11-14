@@ -49,9 +49,10 @@ class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
         setupDayRecyclerView(binding.saturday.rvRecords, records)
         setupDayRecyclerView(binding.sunday.rvRecords, records)
     }
+
     private fun setupDayRecyclerView(recyclerView: RecyclerView, records: List<Record>, itemsPerPade: Int = 6) {
         recyclerView.apply {
-            adapter = DayAdapter().apply {
+            adapter = DayAdapter(context).apply {
                 setRecords(records)
             }
             layoutManager = LinearLayoutPagerManager(
