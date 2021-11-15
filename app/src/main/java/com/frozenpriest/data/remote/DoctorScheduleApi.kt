@@ -19,9 +19,9 @@ interface DoctorScheduleApi {
     @GET("classes/available_periods")
     suspend fun getAvailablePeriods(): AvailablePeriodsResponse
 
-    @GET("api/demo/statuses")
+    @GET("classes/available_statuses")
     suspend fun getAvailableStatuses(): AvailableStatusesResponse
 
-    @GET("api/demo/types")
+    @GET("classes/available_types")
     suspend fun getAvailableTypes(): AvailableTypesResponse
 }

@@ -51,7 +51,7 @@ class FormatScheduleUseCaseImpl : FormatScheduleUseCase {
                 currentDaySchedule.records.map { record ->
                     Record(
                         id = record.id,
-                        status = availableStatuses.find { it.id == record.id },
+                        status = availableStatuses.find { it.id == record.status },
                         types = availableTypes.filter { record.types.contains(it.id) },
                         patient = record.patient,
                         reason = record.reason,

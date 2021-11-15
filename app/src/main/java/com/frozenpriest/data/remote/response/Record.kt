@@ -6,7 +6,7 @@ data class Record(
     @SerializedName("id")
     val id: Int, // record id
     @SerializedName("status")
-    val status: Int, // available status id
+    val status: String, // available status id
     @SerializedName("types")
     val types: List<Int>, // available type ids
     @SerializedName("date")
