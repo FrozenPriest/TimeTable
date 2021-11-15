@@ -8,7 +8,7 @@ data class Record(
     @SerializedName("status")
     val status: String, // available status id
     @SerializedName("types")
-    val types: List<Int>, // available type ids
+    val types: List<String>, // available type ids
     @SerializedName("date")
     val date: Int, // UNIX Timestamp since 1970 00:00
     @SerializedName("pacient")
