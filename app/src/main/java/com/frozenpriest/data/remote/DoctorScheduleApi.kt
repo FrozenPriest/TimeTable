@@ -16,7 +16,7 @@ interface DoctorScheduleApi {
         @Query("year") year: Int
     ): ScheduleResponse
 
-    @GET("api/demo/periods")
+    @GET("classes/available_periods")
     suspend fun getAvailablePeriods(): AvailablePeriodsResponse
 
     @GET("api/demo/statuses")

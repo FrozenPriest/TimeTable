@@ -8,7 +8,7 @@ data class DaySchedule(
     @SerializedName("date")
     val date: Int, // UNIX Timestamp since 1970 00:00
     @SerializedName("available_periods")
-    val availablePeriods: List<Int>, // list of available period IDs
+    val availablePeriods: List<String>, // list of available period IDs
     @SerializedName("records")
     val records: List<Record> // list of associated records
 )

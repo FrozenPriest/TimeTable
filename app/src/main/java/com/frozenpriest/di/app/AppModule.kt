@@ -1,8 +1,11 @@
 package com.frozenpriest.di.app
 
 import android.app.Application
+import com.frozenpriest.data.remote.AuthInterceptor
 import com.frozenpriest.data.remote.DoctorScheduleApi
 import com.frozenpriest.data.remote.UrlProvider
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -21,12 +24,18 @@ class AppModule(val application: Application) {
 
     @AppScope
     @Provides
-    fun provideRetrofit(urlProvider: UrlProvider, client: OkHttpClient): Retrofit {
+    fun provideRetrofit(urlProvider: UrlProvider, client: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(urlProvider.getBaseUrl())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()
+    }
+
+    @AppScope
+    @Provides
+    fun provideGson(): Gson {
+        return GsonBuilder().create()
     }
 
     @AppScope
@@ -37,12 +46,19 @@ class AppModule(val application: Application) {
 
     @AppScope
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BASIC
+            level = HttpLoggingInterceptor.Level.BODY
         }
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .addInterceptor(authInterceptor)
             .build()
+    }
+
+    @AppScope
+    @Provides
+    fun provideAuthInterceptor(): AuthInterceptor {
+        return AuthInterceptor()
     }
 }
