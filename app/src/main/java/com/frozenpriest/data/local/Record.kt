@@ -3,15 +3,14 @@ package com.frozenpriest.data.local
 import com.frozenpriest.data.remote.response.AvailableStatus
 import com.frozenpriest.data.remote.response.AvailableType
 import com.frozenpriest.data.remote.response.Patient
-import com.frozenpriest.data.remote.response.Room
 
 data class Record(
-    val id: Int?, // record id
+    val id: String?, // record id
     val status: AvailableStatus?, // available status
     val types: List<AvailableType>?, // available type ids
     val patient: Patient?, // associated patient
     val reason: String?, // record's reason
-    val room: Room?, // associated room
+    val room: String?, // associated room
     val start: Int, // Start time in seconds after 00:00
     val end: Int, // End time in seconds after 00:00
     val recordType: RecordType,

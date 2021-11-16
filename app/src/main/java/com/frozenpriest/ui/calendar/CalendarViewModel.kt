@@ -5,17 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.frozenpriest.data.local.LocalDoctorSchedule
-import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
-import com.frozenpriest.domain.usecase.FetchScheduleUseCase
-import com.frozenpriest.domain.usecase.FormatScheduleUseCase
-import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
+import com.frozenpriest.domain.usecase.*
 import com.frozenpriest.ui.common.viewmodels.SavedStateViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 import javax.inject.Inject
 
 class CalendarViewModel @Inject constructor(
@@ -24,8 +18,6 @@ class CalendarViewModel @Inject constructor(
     private val fetchAvailableStatusesUseCase: FetchAvailableStatusesUseCase,
     private val fetchAvailableTypesUseCase: FetchAvailableTypesUseCase,
     private val fetchScheduleUseCase: FetchScheduleUseCase,
-    private val formatScheduleUseCase: FormatScheduleUseCase,
-
 ) : SavedStateViewModel() {
 
     private lateinit var _schedule: MutableLiveData<LocalDoctorSchedule>
@@ -41,7 +33,7 @@ class CalendarViewModel @Inject constructor(
         loadSchedule()
     }
 
-    val doctorId = 1
+    val doctorId = "MI3x9PueHJ"
 
     private fun loadDate() {
         _currentDate.value = getCurrentDayUseCase()
@@ -49,26 +41,24 @@ class CalendarViewModel @Inject constructor(
 
     fun loadSchedule() {
         viewModelScope.launch {
+            val availablePeriods = fetchAvailablePeriodsUseCase()
+            val availableStatuses = fetchAvailableStatusesUseCase()
+            val availableTypes = fetchAvailableTypesUseCase()
+
             val result = fetchScheduleUseCase(
                 doctorId,
                 Calendar.getInstance().get(Calendar.WEEK_OF_MONTH),
                 Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.YEAR),
+                // later should take default from room
+                availablePeriods = availablePeriods.getOrDefault(emptyList()),
+                availableStatuses = availableStatuses.getOrDefault(emptyList()),
+                availableTypes = availableTypes.getOrDefault(emptyList())
             )
-
-            val availablePeriods = fetchAvailablePeriodsUseCase()
-            val availableStatuses = fetchAvailableStatusesUseCase()
-            val availableTypes = fetchAvailableTypesUseCase()
 
             result.fold(
                 onSuccess = { newSchedule ->
-                    _schedule.value = formatScheduleUseCase(
-                        doctorSchedule = newSchedule,
-                        // later should take default from room
-                        availablePeriods = availablePeriods.getOrDefault(emptyList()),
-                        availableStatuses = availableStatuses.getOrDefault(emptyList()),
-                        availableTypes = availableTypes.getOrDefault(emptyList())
-                    )
+                    _schedule.value = newSchedule
                 },
                 onFailure = { Timber.e("Error loading schedule") }
             )

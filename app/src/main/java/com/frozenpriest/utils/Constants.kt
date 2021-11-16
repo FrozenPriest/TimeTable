@@ -7,5 +7,5 @@ object Constants {
     const val API_KEY = "M14liV942PYxgFUZAcbEbFCguSTcQbmIJynhgqDh"
     const val HEADER_CONTENT_TYPE = "Content-Type"
     const val CONTENT_TYPE = "application/json"
-    const val BASE_URL = "https://parseapi.back4app.com/"
+    const val BASE_URL = "https://docschedule.b4a.io/"
 }

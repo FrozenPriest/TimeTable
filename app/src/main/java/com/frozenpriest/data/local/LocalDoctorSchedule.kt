@@ -1,10 +1,10 @@
 package com.frozenpriest.data.local
 
-import com.frozenpriest.data.remote.response.Organization
+import java.util.*
 
 data class LocalDoctorSchedule(
-    val doctorId: Int,
+    val doctorId: String,
     val name: String,
-    val organization: Organization,
-    val daySchedules: List<LocalDaySchedule>
+    val organization: String,
+    val daySchedules: Map<Date, LocalDaySchedule>
 )

@@ -3,8 +3,8 @@ package com.frozenpriest.data.remote.response
 import com.google.gson.annotations.SerializedName
 
 data class Patient(
-    @SerializedName("id")
-    val id: Int, // patient inner id
+    @SerializedName("objectId")
+    val id: String, // patient inner id
     @SerializedName("med_id")
     val medId: String, // patient medicine id
     @SerializedName("name")

@@ -6,13 +6,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.frozenpriest.R
+import com.frozenpriest.data.local.LocalDaySchedule
 import com.frozenpriest.data.local.Record
+import com.frozenpriest.data.remote.getDateOfDayOfWeek
 import com.frozenpriest.databinding.CalendarFragmentBinding
 import com.frozenpriest.ui.calendar.viewholder.DayAdapter
 import com.frozenpriest.ui.common.BaseFragment
 import com.frozenpriest.ui.common.viewmodels.ViewModelFactory
 import com.frozenpriest.utils.LinearLayoutPagerManager
 import com.frozenpriest.utils.MarginItemDecoration
+import java.util.*
 import javax.inject.Inject
 
 class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
@@ -20,6 +23,7 @@ class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
     companion object {
         fun newInstance() = CalendarFragment()
     }
+
     @Inject
     lateinit var myViewModelFactory: ViewModelFactory
     private lateinit var viewModel: CalendarViewModel
@@ -33,21 +37,45 @@ class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
         viewModel = ViewModelProvider(this, myViewModelFactory)[CalendarViewModel::class.java]
 
         viewModel.currentDate.observe(viewLifecycleOwner) { date ->
+            this.currentDate = date
         }
 
         viewModel.schedule.observe(viewLifecycleOwner) { schedule ->
-            setupRecyclerViews(emptyList())
+            setupRecyclerViews(schedule.daySchedules)
         }
     }
-    private fun setupRecyclerViews(records: List<Record>) {
 
-        setupDayRecyclerView(binding.monday.rvRecords, records)
-        setupDayRecyclerView(binding.tuesday.rvRecords, records)
-        setupDayRecyclerView(binding.wednesday.rvRecords, records)
-        setupDayRecyclerView(binding.thursday.rvRecords, records)
-        setupDayRecyclerView(binding.friday.rvRecords, records)
-        setupDayRecyclerView(binding.saturday.rvRecords, records)
-        setupDayRecyclerView(binding.sunday.rvRecords, records)
+    lateinit var currentDate: Date
+    private fun setupRecyclerViews(daySchedules: Map<Date, LocalDaySchedule>) {
+        setupDayRecyclerView(
+            binding.monday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.MONDAY)]?.records ?: emptyList()
+        )
+        setupDayRecyclerView(
+            binding.tuesday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.TUESDAY)]?.records ?: emptyList()
+        )
+        setupDayRecyclerView(
+            binding.wednesday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.WEDNESDAY)]?.records ?: emptyList()
+        )
+        val test = currentDate.getDateOfDayOfWeek(Calendar.THURSDAY)
+        setupDayRecyclerView(
+            binding.thursday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.THURSDAY)]?.records ?: emptyList()
+        )
+        setupDayRecyclerView(
+            binding.friday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.FRIDAY)]?.records ?: emptyList()
+        )
+        setupDayRecyclerView(
+            binding.saturday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.SATURDAY)]?.records ?: emptyList()
+        )
+        setupDayRecyclerView(
+            binding.sunday.rvRecords,
+            daySchedules[currentDate.getDateOfDayOfWeek(Calendar.SUNDAY)]?.records ?: emptyList()
+        )
     }
 
     private fun setupDayRecyclerView(recyclerView: RecyclerView, records: List<Record>, itemsPerPade: Int = 6) {
