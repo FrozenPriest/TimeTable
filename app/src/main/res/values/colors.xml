@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="time_color">#D9535353</color>
+    <color name="no_record_background">#F0F0F0</color>
+    <color name="divider_empty">#D8D8D8</color>
+    <color name="divider_no_shift">#FFFFFF</color>
+    <color name="text_gray">#6D7278</color>
+    <color name="active_day">#F7B500</color>
+
 </resources>
