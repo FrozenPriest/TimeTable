@@ -1,3 +1,5 @@
+@file:Suppress("LongParameterList")
+
 package com.frozenpriest.domain.usecase
 
 import android.graphics.Color
@@ -10,6 +12,9 @@ import com.frozenpriest.data.remote.IsoDateFormatter
 import com.frozenpriest.data.remote.response.AvailablePeriod
 import com.frozenpriest.data.remote.response.AvailableStatus
 import com.frozenpriest.data.remote.response.AvailableType
+import com.frozenpriest.data.remote.response.DayScheduleResponse
+import com.frozenpriest.data.remote.response.PatientsResponse
+import com.frozenpriest.data.remote.response.RecordsResponse
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -45,95 +50,149 @@ class FetchScheduleUseCaseImpl @Inject constructor(
 
             // getDaySchedules() with doctor id and start-finish dates
             val (startDate, endDate) = isoDateFormatter.getWeekStartEndDates()
+
             val daySchedules = doctorScheduleApi.getDaySchedules(
-                "{ \"doctor\":\"$doctorId\", \"date\":{\"\$gte\": {\"__type\":\"Date\",\"iso\":\"${startDate}\"}, \"\$lte\": {\"__type\":\"Date\",\"iso\":\"${endDate}\"}} }"
+                formatDoctorScheduleRequest(doctorId, startDate, endDate)
             )
-            if (daySchedules.schedules.isEmpty()) return Result.success(
+            if (daySchedules.schedules.isEmpty()) Result.success(
                 LocalDoctorSchedule(
                     doctorInfo.id, doctorInfo.name, doctorInfo.organization, emptyMap()
                 )
-            )
+            ) else {
 
-            val recordIds = mutableListOf<String>()
-            daySchedules.schedules.forEach { recordIds.addAll(it.records) }
-            // getRecords() with record id
-            val records = doctorScheduleApi.getRecords(
-                "{ \"objectId\":{\"\$in\": [${
-                recordIds.joinToString(
-                    "\", \"",
-                    "\"",
-                    "\""
-                )
-                }]} }"
-            )
+                val records = getRecordsFromDaySchedules(daySchedules)
 
-            // getPatients() with patient ids
-            val patientIds = records.records.map { it.patient }
-            val patients = doctorScheduleApi.getPatients(
-                "{ \"objectId\":{\"\$in\": [${
-                patientIds.joinToString(
-                    "\", \"",
-                    "\"",
-                    "\""
-                )
-                }]} }"
-            )
+                // getPatients() with patient ids
+                val patients = getPatientsFromRecordsIds(records)
 
-            val newDaySchedules = daySchedules.schedules.map { currentDaySchedule ->
-                val recs = mutableListOf<Record>()
-                recs.addAll(
-                    availablePeriods.filter {
-                        currentDaySchedule.availablePeriods.contains(it.id)
-                    }.map {
-                        Record(
-                            start = it.start,
-                            end = it.end,
-                            recordType = RecordType.EMPTY,
-                            id = null,
-                            status = null,
-                            types = null,
-                            patient = null,
-                            reason = null,
-                            room = null,
-                            backgroundColor = null,
-                            dividerColor = null
-                        )
-                    }
+                val newDaySchedules = buildDaySchedules(
+                    daySchedules,
+                    records,
+                    availablePeriods,
+                    availableStatuses,
+                    availableTypes,
+                    patients,
                 )
-                recs.addAll(
-                    records.records.map { record ->
-                        Record(
-                            id = record.id,
-                            status = availableStatuses.find { it.id == record.status },
-                            types = availableTypes.filter { record.types.contains(it.id) },
-                            patient = patients.records.first { it.id == record.patient },
-                            reason = record.reason,
-                            room = record.room,
-                            start = record.start,
-                            end = record.end,
-                            recordType = RecordType.OCCUPIED,
-                            backgroundColor = Color.LTGRAY,
-                            dividerColor = Color.MAGENTA
-                        )
-                    }
-                )
-                LocalDaySchedule(
-                    id = currentDaySchedule.id,
-                    date = isoDateFormatter.stringToDate(currentDaySchedule.date.date),
-                    records = recs.sortedBy { it.start }
+                Result.success(
+                    LocalDoctorSchedule(
+                        doctorId = doctorInfo.id,
+                        name = doctorInfo.name,
+                        organization = doctorInfo.organization,
+                        daySchedules = newDaySchedules.associateBy { it.date }
+                    )
                 )
             }
-            return Result.success(
-                LocalDoctorSchedule(
-                    doctorId = doctorInfo.id,
-                    name = doctorInfo.name,
-                    organization = doctorInfo.organization,
-                    daySchedules = newDaySchedules.associateBy { it.date }
-                )
-            )
         } catch (e: Exception) {
             Timber.e(e)
             Result.failure(e)
         }
+    }
+
+    private fun formatDoctorScheduleRequest(doctorId: String, startDate: String, endDate: String): String {
+        return """
+                  { 
+                  \"doctor\":\"$doctorId\", 
+                  \"date\":
+                  {
+                    \"\${'$'}gte\": 
+                        {
+                            \"__type\":\"Date\",
+                            \"iso\":\"$startDate\"
+                        }, 
+                    \"\${'$'}lte\": 
+                        {
+                            \"__type\":\"Date\",
+                            \"iso\":\"$endDate\"
+                        }
+                    }
+                 }
+        """.trimIndent()
+    }
+
+    private suspend fun getRecordsFromDaySchedules(daySchedules: DayScheduleResponse): RecordsResponse {
+        val recordIds = mutableListOf<String>()
+        daySchedules.schedules.forEach { recordIds.addAll(it.records) }
+        // getRecords() with record id
+        val records = doctorScheduleApi.getRecords(
+            "{ \"objectId\":{\"\$in\": [${
+            recordIds.joinToString(
+                "\", \"",
+                "\"",
+                "\""
+            )
+            }]} }"
+        )
+        return records
+    }
+
+    private suspend fun getPatientsFromRecordsIds(records: RecordsResponse): PatientsResponse {
+        val patientIds = records.records.map { it.patient }
+        val patients = doctorScheduleApi.getPatients(
+            "{ \"objectId\":{\"\$in\": [${
+            patientIds.joinToString(
+                "\", \"",
+                "\"",
+                "\""
+            )
+            }]} }"
+        )
+        return patients
+    }
+
+    private fun buildDaySchedules(
+        daySchedules: DayScheduleResponse,
+        records: RecordsResponse,
+        availablePeriods: List<AvailablePeriod>,
+        availableStatuses: List<AvailableStatus>,
+        availableTypes: List<AvailableType>,
+        patients: PatientsResponse,
+    ): List<LocalDaySchedule> {
+        val isoDateFormatter = IsoDateFormatter()
+
+        val newDaySchedules = daySchedules.schedules.map { currentDaySchedule ->
+            val recs = mutableListOf<Record>()
+            recs.addAll(
+                availablePeriods.filter {
+                    currentDaySchedule.availablePeriods.contains(it.id)
+                }.map {
+                    Record(
+                        start = it.start,
+                        end = it.end,
+                        recordType = RecordType.EMPTY,
+                        id = null,
+                        status = null,
+                        types = null,
+                        patient = null,
+                        reason = null,
+                        room = null,
+                        backgroundColor = null,
+                        dividerColor = null
+                    )
+                }
+            )
+            recs.addAll(
+                records.records.map { record ->
+                    Record(
+                        id = record.id,
+                        status = availableStatuses.find { it.id == record.status },
+                        types = availableTypes.filter { record.types.contains(it.id) },
+                        patient = patients.records.first { it.id == record.patient },
+                        reason = record.reason,
+                        room = record.room,
+                        start = record.start,
+                        end = record.end,
+                        recordType = RecordType.OCCUPIED,
+                        backgroundColor = Color.LTGRAY,
+                        dividerColor = Color.MAGENTA
+                    )
+                }
+            )
+            LocalDaySchedule(
+                id = currentDaySchedule.id,
+                date = isoDateFormatter.stringToDate(currentDaySchedule.date.date),
+                records = recs.sortedBy { it.start }
+            )
+        }
+        return newDaySchedules
     }
 }
