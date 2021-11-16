@@ -5,11 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.frozenpriest.data.local.LocalDoctorSchedule
-import com.frozenpriest.domain.usecase.*
+import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
+import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
+import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
+import com.frozenpriest.domain.usecase.FetchScheduleUseCase
+import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.ui.common.viewmodels.SavedStateViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 class CalendarViewModel @Inject constructor(

@@ -1,6 +1,6 @@
 package com.frozenpriest.data.local
 
-import java.util.*
+import java.util.Date
 
 data class LocalDoctorSchedule(
     val doctorId: String,

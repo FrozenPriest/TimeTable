@@ -15,7 +15,8 @@ import com.frozenpriest.ui.common.BaseFragment
 import com.frozenpriest.ui.common.viewmodels.ViewModelFactory
 import com.frozenpriest.utils.LinearLayoutPagerManager
 import com.frozenpriest.utils.MarginItemDecoration
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
@@ -59,7 +60,6 @@ class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
             binding.wednesday.rvRecords,
             daySchedules[currentDate.getDateOfDayOfWeek(Calendar.WEDNESDAY)]?.records ?: emptyList()
         )
-        val test = currentDate.getDateOfDayOfWeek(Calendar.THURSDAY)
         setupDayRecyclerView(
             binding.thursday.rvRecords,
             daySchedules[currentDate.getDateOfDayOfWeek(Calendar.THURSDAY)]?.records ?: emptyList()
