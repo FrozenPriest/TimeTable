@@ -47,6 +47,18 @@ fun Date.getDateOfDayOfWeek(dayOfWeek: Int): Date {
     return calendar.time
 }
 
+fun Date.getDayOfMonth(): Int {
+    val cal: Calendar = Calendar.getInstance()
+    cal.time = this
+    return cal.get(Calendar.DAY_OF_MONTH)
+}
+
+fun Date.getDayOfWeek(): Int {
+    val cal: Calendar = Calendar.getInstance()
+    cal.time = this
+    return cal.get(Calendar.DAY_OF_WEEK)
+}
+
 fun Date.formatDate(): String {
 
     val format = SimpleDateFormat("dd LLL", Locale.getDefault())

@@ -5,4 +5,12 @@
     <string name="free_space">Свободно</string>
     <string name="date_period">%1$s - %2$s</string>
 
+    <string name="monday">Пн</string>
+    <string name="tuesday">Вт</string>
+    <string name="wednesday">Ср</string>
+    <string name="thursday">Чт</string>
+    <string name="friday">Пт</string>
+    <string name="saturday">Сб</string>
+    <string name="sunday">Вс</string>
+    <string name="select_week">Выберите неделю</string>
 </resources>

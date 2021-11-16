@@ -9,7 +9,7 @@ import dagger.Provides
 class ActivityModule(val activity: AppCompatActivity) {
     companion object {
         @Provides
-        fun layoutInflater(activity: AppCompatActivity) = LayoutInflater.from(activity)
+        fun layoutInflater(activity: AppCompatActivity): LayoutInflater = LayoutInflater.from(activity)
 
         @Provides
         fun fragmentManager(activity: AppCompatActivity) = activity.supportFragmentManager
