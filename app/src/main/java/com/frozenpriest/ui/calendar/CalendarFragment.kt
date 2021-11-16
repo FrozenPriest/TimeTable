@@ -8,13 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.frozenpriest.R
 import com.frozenpriest.data.local.LocalDaySchedule
 import com.frozenpriest.data.local.Record
-import com.frozenpriest.data.remote.getDateOfDayOfWeek
 import com.frozenpriest.databinding.CalendarFragmentBinding
 import com.frozenpriest.ui.calendar.viewholder.DayAdapter
 import com.frozenpriest.ui.common.BaseFragment
 import com.frozenpriest.ui.common.viewmodels.ViewModelFactory
 import com.frozenpriest.utils.LinearLayoutPagerManager
 import com.frozenpriest.utils.MarginItemDecoration
+import com.frozenpriest.utils.formatDate
+import com.frozenpriest.utils.getDateOfDayOfWeek
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -39,6 +40,9 @@ class CalendarFragment : BaseFragment(R.layout.calendar_fragment) {
 
         viewModel.currentDate.observe(viewLifecycleOwner) { date ->
             this.currentDate = date
+            val monday = date.getDateOfDayOfWeek(Calendar.MONDAY).formatDate()
+            val sunday = date.getDateOfDayOfWeek(Calendar.SUNDAY).formatDate()
+            binding.textViewDatePeriod.text = requireContext().resources.getString(R.string.date_period, monday, sunday)
         }
 
         viewModel.schedule.observe(viewLifecycleOwner) { schedule ->

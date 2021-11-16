@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Time table</string>
     <string name="duration_mins">%1$d мин</string>
+    <string name="no_shift">Нет смены</string>
+    <string name="free_space">Свободно</string>
+    <string name="date_period">%1$s - %2$s</string>
+
 </resources>

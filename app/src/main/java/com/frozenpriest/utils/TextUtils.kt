@@ -5,10 +5,13 @@ object TextUtils {
         return formatTime(time) + " - " + formatTime(time + duration)
     }
 
-    @Suppress("MagicNumber")
+    const val secInMinute = 60
+    const val minInHour = 60
+    const val secInHour = secInMinute * minInHour
+
     fun formatTime(time: Int): String {
-        val hour = time / 3600
-        val minute = (time - hour * 3600) / 60
+        val hour = time / secInHour
+        val minute = (time - hour * secInHour) / secInMinute
         return "%02d:%02d".format(hour, minute)
     }
 }

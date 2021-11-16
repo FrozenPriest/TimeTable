@@ -1,4 +1,4 @@
-package com.frozenpriest.data.remote
+package com.frozenpriest.utils
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -45,4 +45,10 @@ fun Date.getDateOfDayOfWeek(dayOfWeek: Int): Date {
     calendar.set(Calendar.MILLISECOND, 0)
 
     return calendar.time
+}
+
+fun Date.formatDate(): String {
+
+    val format = SimpleDateFormat("dd LLL", Locale.getDefault())
+    return format.format(this)
 }

@@ -1,4 +1,4 @@
-@file:Suppress("LongParameterList")
+@file:Suppress("LongParameterList", "MaxLineLength")
 
 package com.frozenpriest.domain.usecase
 
@@ -8,13 +8,13 @@ import com.frozenpriest.data.local.LocalDoctorSchedule
 import com.frozenpriest.data.local.Record
 import com.frozenpriest.data.local.RecordType
 import com.frozenpriest.data.remote.DoctorScheduleApi
-import com.frozenpriest.data.remote.IsoDateFormatter
 import com.frozenpriest.data.remote.response.AvailablePeriod
 import com.frozenpriest.data.remote.response.AvailableStatus
 import com.frozenpriest.data.remote.response.AvailableType
 import com.frozenpriest.data.remote.response.DayScheduleResponse
 import com.frozenpriest.data.remote.response.PatientsResponse
 import com.frozenpriest.data.remote.response.RecordsResponse
+import com.frozenpriest.utils.IsoDateFormatter
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -89,31 +89,14 @@ class FetchScheduleUseCaseImpl @Inject constructor(
     }
 
     private fun formatDoctorScheduleRequest(doctorId: String, startDate: String, endDate: String): String {
-        return """
-                  { 
-                  \"doctor\":\"$doctorId\", 
-                  \"date\":
-                  {
-                    \"\${'$'}gte\": 
-                        {
-                            \"__type\":\"Date\",
-                            \"iso\":\"$startDate\"
-                        }, 
-                    \"\${'$'}lte\": 
-                        {
-                            \"__type\":\"Date\",
-                            \"iso\":\"$endDate\"
-                        }
-                    }
-                 }
-        """.trimIndent()
+        return "{ \"doctor\":\"$doctorId\",\"date\":{ \"\$gte\":{ \"__type\":\"Date\",\"iso\":\"$startDate\" },\"\$lte\":{ \"__type\":\"Date\",\"iso\":\"$endDate\" } } }"
     }
 
     private suspend fun getRecordsFromDaySchedules(daySchedules: DayScheduleResponse): RecordsResponse {
         val recordIds = mutableListOf<String>()
         daySchedules.schedules.forEach { recordIds.addAll(it.records) }
         // getRecords() with record id
-        val records = doctorScheduleApi.getRecords(
+        return doctorScheduleApi.getRecords(
             "{ \"objectId\":{\"\$in\": [${
             recordIds.joinToString(
                 "\", \"",
@@ -122,12 +105,11 @@ class FetchScheduleUseCaseImpl @Inject constructor(
             )
             }]} }"
         )
-        return records
     }
 
     private suspend fun getPatientsFromRecordsIds(records: RecordsResponse): PatientsResponse {
         val patientIds = records.records.map { it.patient }
-        val patients = doctorScheduleApi.getPatients(
+        return doctorScheduleApi.getPatients(
             "{ \"objectId\":{\"\$in\": [${
             patientIds.joinToString(
                 "\", \"",
@@ -136,7 +118,6 @@ class FetchScheduleUseCaseImpl @Inject constructor(
             )
             }]} }"
         )
-        return patients
     }
 
     private fun buildDaySchedules(

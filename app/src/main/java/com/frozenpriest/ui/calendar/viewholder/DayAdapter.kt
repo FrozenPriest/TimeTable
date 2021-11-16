@@ -43,6 +43,11 @@ class DayAdapter @Inject constructor(
                     .inflate(R.layout.empty_record_layout, parent, false)
                 EmptyViewHolder(itemView)
             }
+            RecordType.NO_SHIFT.ordinal -> {
+                val itemView = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.empty_record_layout, parent, false)
+                NoShiftViewHolder(itemView)
+            }
             RecordType.OCCUPIED.ordinal -> {
                 val itemView = LayoutInflater.from(parent.context)
                     .inflate(R.layout.filled_record_layout, parent, false)
@@ -85,8 +90,8 @@ class DayAdapter @Inject constructor(
                 layout.setBackgroundColor(noRecordColor)
                 divider.setBackgroundColor(emptyDividerColor)
 
-                textViewName.text = it.patient?.name
-                textViewTime.text = TextUtils.formatTimePeriod(it.start, it.start - it.end)
+                textViewName.text = itemView.resources.getString(R.string.no_shift)
+                textViewTime.text = TextUtils.formatTimePeriod(it.start, (it.end - it.start) / TextUtils.secInMinute)
             }
         }
     }
@@ -104,8 +109,11 @@ class DayAdapter @Inject constructor(
                 layout.setBackgroundColor(noShiftColor)
                 divider.setBackgroundColor(noShiftColor)
 
-                textViewName.text = it.patient?.name
-                textViewTime.text = TextUtils.formatTimePeriod(it.start, it.start - it.end)
+                textViewName.text = itemView.resources.getString(R.string.no_shift)
+                textViewTime.text = TextUtils.formatTimePeriod(
+                    it.start,
+                    (it.end - it.start) / TextUtils.secInMinute
+                )
             }
         }
     }
@@ -125,8 +133,10 @@ class DayAdapter @Inject constructor(
                 textViewName.text = it.patient?.name
                 textViewTime.text = TextUtils.formatTime(it.start)
 
-                textViewDuration.text =
-                    itemView.resources.getString(R.string.duration_mins, it.start - it.end)
+                textViewDuration.text = itemView.resources.getString(
+                    R.string.duration_mins,
+                    (it.end - it.start) / TextUtils.secInMinute
+                )
             }
         }
     }

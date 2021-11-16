@@ -39,5 +39,5 @@ data class Record(
 //    )
 
 enum class RecordType {
-    EMPTY, OCCUPIED
+    EMPTY, OCCUPIED, NO_SHIFT
 }
