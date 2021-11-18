@@ -4,9 +4,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.frozenpriest.data.local.entities.AvailablePeriodEntity
 import com.frozenpriest.data.local.entities.AvailableStatusEntity
 import com.frozenpriest.data.local.entities.AvailableTypeEntity
 import com.frozenpriest.data.local.entities.DoctorEntity
+import com.frozenpriest.data.local.entities.RecordEntity
 import com.frozenpriest.data.local.entities.query.DoctorWithRecords
 import com.frozenpriest.data.local.entities.query.FullRecord
 import kotlinx.coroutines.flow.Flow
@@ -27,10 +29,13 @@ interface RecordsDao {
 
     @Transaction
     @Insert
-    fun insertFullRecords(records: List<FullRecord>)
+    fun insertRecords(records: List<RecordEntity>)
 
     @Insert
     fun insertStatuses(status: List<AvailableStatusEntity>)
+
+    @Insert
+    fun insertPeriods(status: List<AvailablePeriodEntity>)
 
     @Insert
     fun insertTypes(types: List<AvailableTypeEntity>)

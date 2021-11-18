@@ -10,6 +10,7 @@ import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
 import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
+import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCase
 import com.frozenpriest.ui.common.viewmodels.SavedStateViewModel
 import com.frozenpriest.utils.getDateOfDayOfWeek
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ class CalendarViewModel @Inject constructor(
     private val fetchAvailableStatusesUseCase: FetchAvailableStatusesUseCase,
     private val fetchAvailableTypesUseCase: FetchAvailableTypesUseCase,
     private val fetchScheduleUseCase: FetchScheduleUseCase,
+    private val cacheAvailablePeriodsUseCase: CacheAvailablePeriodsUseCase
 ) : SavedStateViewModel() {
 
     private lateinit var _schedule: MutableLiveData<LocalDoctorSchedule>
@@ -86,6 +88,7 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             val availablePeriods = fetchAvailablePeriodsUseCase()
+            availablePeriods.onSuccess { cacheAvailablePeriodsUseCase(it) }
             val availableStatuses = fetchAvailableStatusesUseCase()
             val availableTypes = fetchAvailableTypesUseCase()
 

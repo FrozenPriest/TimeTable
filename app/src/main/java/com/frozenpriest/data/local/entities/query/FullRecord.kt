@@ -15,9 +15,13 @@ data class FullRecord(
         entityColumn = "id"
     ) val statusEntity: AvailableStatusEntity,
     @Relation(
-        parentColumn = "recordId",
-        entityColumn = "availableTypeId",
-        associateBy = Junction(RecordAvailableTypeCrossRef::class)
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(
+            RecordAvailableTypeCrossRef::class,
+            parentColumn = "recordId",
+            entityColumn = "availableTypeId"
+        )
 
     )
     val availableTypes: List<AvailableTypeEntity>

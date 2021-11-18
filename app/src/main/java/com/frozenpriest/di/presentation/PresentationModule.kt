@@ -2,6 +2,7 @@ package com.frozenpriest.di.presentation
 
 import androidx.fragment.app.FragmentManager
 import androidx.savedstate.SavedStateRegistryOwner
+import com.frozenpriest.data.local.dao.RecordsDao
 import com.frozenpriest.data.remote.DoctorScheduleApi
 import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
 import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCaseImpl
@@ -13,6 +14,8 @@ import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCaseImpl
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCaseImpl
+import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCase
+import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCaseImpl
 import com.frozenpriest.ui.common.DialogManager
 import dagger.Module
 import dagger.Provides
@@ -42,5 +45,10 @@ class PresentationModule(private val savedStateRegistryOwner: SavedStateRegistry
         FetchAvailablePeriodsUseCaseImpl(doctorScheduleApi)
 
     @Provides
-    fun provideDialogManager(fragmentManager: FragmentManager): DialogManager = DialogManager(fragmentManager)
+    fun provideCacheAvailablePeriodsUseCase(dao: RecordsDao): CacheAvailablePeriodsUseCase =
+        CacheAvailablePeriodsUseCaseImpl(dao)
+
+    @Provides
+    fun provideDialogManager(fragmentManager: FragmentManager): DialogManager =
+        DialogManager(fragmentManager)
 }
