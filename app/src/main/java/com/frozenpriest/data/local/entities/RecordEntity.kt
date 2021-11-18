@@ -38,6 +38,8 @@ data class RecordEntity(
     val reason: String, // record's reason
     @ColumnInfo(name = "room")
     val room: String, // associated room
+    @ColumnInfo(name = "date")
+    val date: Long, // record date
     @ColumnInfo(name = "start")
     val start: Int, // Start time in seconds after 00:00
     @ColumnInfo(name = "end")
