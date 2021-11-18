@@ -1,4 +1,4 @@
-@file:Suppress("LongParameterList", "MaxLineLength")
+@file:Suppress("LongParameterList")
 
 package com.frozenpriest.domain.usecase
 
@@ -88,8 +88,14 @@ class FetchScheduleUseCaseImpl @Inject constructor(
         }
     }
 
-    private fun formatDoctorScheduleRequest(doctorId: String, startDate: String, endDate: String): String {
-        return "{ \"doctor\":\"$doctorId\",\"date\":{ \"\$gte\":{ \"__type\":\"Date\",\"iso\":\"$startDate\" },\"\$lte\":{ \"__type\":\"Date\",\"iso\":\"$endDate\" } } }"
+    private fun formatDoctorScheduleRequest(
+        doctorId: String,
+        startDate: String,
+        endDate: String
+    ): String {
+        return "{ \"doctor\":\"$doctorId\",\"date\":{ \"\$gte\":" +
+            "{ \"__type\":\"Date\",\"iso\":\"$startDate\" }," +
+            "\"\$lte\":{ \"__type\":\"Date\",\"iso\":\"$endDate\" } } }"
     }
 
     private suspend fun getRecordsFromDaySchedules(daySchedules: DayScheduleResponse): RecordsResponse {
@@ -168,6 +174,70 @@ class FetchScheduleUseCaseImpl @Inject constructor(
                     )
                 }
             )
+            // берем все периоды, которые не в списке. Крайние сливаем в один
+            var cumulative = -1
+            for (i in availablePeriods.sortedBy { it.start }.indices) {
+                if (!currentDaySchedule.availablePeriods.contains(availablePeriods[i].id)) {
+                    when {
+                        cumulative == -1 -> {
+                            cumulative = i
+                        }
+                        availablePeriods[i - 1].end != availablePeriods[i].start -> {
+                            // add prev group
+                            recs.add(
+                                Record(
+                                    start = availablePeriods[cumulative].start,
+                                    end = availablePeriods[i - 1].end,
+                                    recordType = RecordType.NO_SHIFT,
+                                    id = null,
+                                    status = null,
+                                    types = null,
+                                    patient = null,
+                                    reason = null,
+                                    room = null,
+                                    backgroundColor = null,
+                                    dividerColor = null
+                                )
+                            )
+                            cumulative = i
+                        }
+                        i == availablePeriods.lastIndex -> {
+                            recs.add(
+                                Record(
+                                    start = availablePeriods[cumulative].start,
+                                    end = availablePeriods[i].end,
+                                    recordType = RecordType.NO_SHIFT,
+                                    id = null,
+                                    status = null,
+                                    types = null,
+                                    patient = null,
+                                    reason = null,
+                                    room = null,
+                                    backgroundColor = null,
+                                    dividerColor = null
+                                )
+                            )
+                        }
+                    }
+                } else if (cumulative != -1) {
+                    recs.add(
+                        Record(
+                            start = availablePeriods[cumulative].start,
+                            end = availablePeriods[i - 1].end,
+                            recordType = RecordType.NO_SHIFT,
+                            id = null,
+                            status = null,
+                            types = null,
+                            patient = null,
+                            reason = null,
+                            room = null,
+                            backgroundColor = null,
+                            dividerColor = null
+                        )
+                    )
+                    cumulative = -1
+                }
+            }
             LocalDaySchedule(
                 id = currentDaySchedule.id,
                 date = isoDateFormatter.stringToDate(currentDaySchedule.date.date),
