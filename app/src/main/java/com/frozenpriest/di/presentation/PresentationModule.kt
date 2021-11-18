@@ -16,6 +16,10 @@ import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCaseImpl
 import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCase
 import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCaseImpl
+import com.frozenpriest.domain.usecase.caching.CacheAvailableStatusesUseCase
+import com.frozenpriest.domain.usecase.caching.CacheAvailableStatusesUseCaseImpl
+import com.frozenpriest.domain.usecase.caching.CacheAvailableTypesUseCase
+import com.frozenpriest.domain.usecase.caching.CacheAvailableTypesUseCaseImpl
 import com.frozenpriest.ui.common.DialogManager
 import dagger.Module
 import dagger.Provides
@@ -47,6 +51,14 @@ class PresentationModule(private val savedStateRegistryOwner: SavedStateRegistry
     @Provides
     fun provideCacheAvailablePeriodsUseCase(dao: RecordsDao): CacheAvailablePeriodsUseCase =
         CacheAvailablePeriodsUseCaseImpl(dao)
+
+    @Provides
+    fun provideCacheAvailableStatusesUseCase(dao: RecordsDao): CacheAvailableStatusesUseCase =
+        CacheAvailableStatusesUseCaseImpl(dao)
+
+    @Provides
+    fun provideCacheAvailableTypesUseCase(dao: RecordsDao): CacheAvailableTypesUseCase =
+        CacheAvailableTypesUseCaseImpl(dao)
 
     @Provides
     fun provideDialogManager(fragmentManager: FragmentManager): DialogManager =
