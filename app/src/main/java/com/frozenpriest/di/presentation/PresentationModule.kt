@@ -4,6 +4,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.savedstate.SavedStateRegistryOwner
 import com.frozenpriest.data.local.dao.RecordsDao
 import com.frozenpriest.data.remote.DoctorScheduleApi
+import com.frozenpriest.domain.usecase.CacheInDatabaseUseCase
+import com.frozenpriest.domain.usecase.CacheInDatabaseUseCaseImpl
 import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
 import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCaseImpl
 import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
@@ -14,12 +16,6 @@ import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCaseImpl
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCaseImpl
-import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCase
-import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCaseImpl
-import com.frozenpriest.domain.usecase.caching.CacheAvailableStatusesUseCase
-import com.frozenpriest.domain.usecase.caching.CacheAvailableStatusesUseCaseImpl
-import com.frozenpriest.domain.usecase.caching.CacheAvailableTypesUseCase
-import com.frozenpriest.domain.usecase.caching.CacheAvailableTypesUseCaseImpl
 import com.frozenpriest.ui.common.DialogManager
 import dagger.Module
 import dagger.Provides
@@ -49,16 +45,8 @@ class PresentationModule(private val savedStateRegistryOwner: SavedStateRegistry
         FetchAvailablePeriodsUseCaseImpl(doctorScheduleApi)
 
     @Provides
-    fun provideCacheAvailablePeriodsUseCase(dao: RecordsDao): CacheAvailablePeriodsUseCase =
-        CacheAvailablePeriodsUseCaseImpl(dao)
-
-    @Provides
-    fun provideCacheAvailableStatusesUseCase(dao: RecordsDao): CacheAvailableStatusesUseCase =
-        CacheAvailableStatusesUseCaseImpl(dao)
-
-    @Provides
-    fun provideCacheAvailableTypesUseCase(dao: RecordsDao): CacheAvailableTypesUseCase =
-        CacheAvailableTypesUseCaseImpl(dao)
+    fun provideCacheInDatabaseUseCase(dao: RecordsDao): CacheInDatabaseUseCase =
+        CacheInDatabaseUseCaseImpl(dao)
 
     @Provides
     fun provideDialogManager(fragmentManager: FragmentManager): DialogManager =

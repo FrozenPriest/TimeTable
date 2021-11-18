@@ -5,14 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.frozenpriest.domain.model.LocalDoctorSchedule
+import com.frozenpriest.domain.usecase.CacheInDatabaseUseCase
 import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
 import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
 import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
-import com.frozenpriest.domain.usecase.caching.CacheAvailablePeriodsUseCase
-import com.frozenpriest.domain.usecase.caching.CacheAvailableStatusesUseCase
-import com.frozenpriest.domain.usecase.caching.CacheAvailableTypesUseCase
 import com.frozenpriest.ui.common.viewmodels.SavedStateViewModel
 import com.frozenpriest.utils.getDateOfDayOfWeek
 import kotlinx.coroutines.launch
@@ -27,9 +25,7 @@ class CalendarViewModel @Inject constructor(
     private val fetchAvailableStatusesUseCase: FetchAvailableStatusesUseCase,
     private val fetchAvailableTypesUseCase: FetchAvailableTypesUseCase,
     private val fetchScheduleUseCase: FetchScheduleUseCase,
-    private val cacheAvailablePeriodsUseCase: CacheAvailablePeriodsUseCase,
-    private val cacheAvailableStatusesUseCase: CacheAvailableStatusesUseCase,
-    private val cacheAvailableTypesUseCase: CacheAvailableTypesUseCase,
+    private val cacheInDatabaseUseCase: CacheInDatabaseUseCase
 ) : SavedStateViewModel() {
 
     private lateinit var _schedule: MutableLiveData<LocalDoctorSchedule>
@@ -91,12 +87,16 @@ class CalendarViewModel @Inject constructor(
     fun loadSchedule() {
         viewModelScope.launch {
             _isLoading.value = true
+
             val availablePeriods = fetchAvailablePeriodsUseCase()
-            availablePeriods.onSuccess { cacheAvailablePeriodsUseCase(it) }
             val availableStatuses = fetchAvailableStatusesUseCase()
-            availableStatuses.onSuccess { cacheAvailableStatusesUseCase(it) }
             val availableTypes = fetchAvailableTypesUseCase()
-            availableTypes.onSuccess { cacheAvailableTypesUseCase(it) }
+
+            cacheInDatabaseUseCase(
+                availablePeriods.getOrDefault(emptyList()),
+                availableTypes.getOrDefault(emptyList()),
+                availableStatuses.getOrDefault(emptyList())
+            )
 
             val calendar = Calendar.getInstance()
             calendar.time = selectedWeek
