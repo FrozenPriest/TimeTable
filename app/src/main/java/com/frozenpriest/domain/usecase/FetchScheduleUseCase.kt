@@ -30,7 +30,7 @@ interface FetchScheduleUseCase {
         availableTypes: List<AvailableType>
     ): Result<LocalDoctorSchedule>
 }
-
+// следует отрефакторить
 class FetchScheduleUseCaseImpl @Inject constructor(
     private val doctorScheduleApi: DoctorScheduleApi
 ) : FetchScheduleUseCase {

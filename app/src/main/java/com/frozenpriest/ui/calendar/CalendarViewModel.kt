@@ -4,11 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.frozenpriest.data.remote.RemoteRepository
 import com.frozenpriest.domain.model.LocalDoctorSchedule
 import com.frozenpriest.domain.usecase.CacheInDatabaseUseCase
-import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.ui.common.viewmodels.SavedStateViewModel
@@ -21,9 +19,7 @@ import javax.inject.Inject
 
 class CalendarViewModel @Inject constructor(
     private val getCurrentDayUseCase: GetCurrentDayUseCase,
-    private val fetchAvailablePeriodsUseCase: FetchAvailablePeriodsUseCase,
-    private val fetchAvailableStatusesUseCase: FetchAvailableStatusesUseCase,
-    private val fetchAvailableTypesUseCase: FetchAvailableTypesUseCase,
+    private val remoteRepository: RemoteRepository,
     private val fetchScheduleUseCase: FetchScheduleUseCase,
     private val cacheInDatabaseUseCase: CacheInDatabaseUseCase
 ) : SavedStateViewModel() {
@@ -88,9 +84,9 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
 
-            val availablePeriods = fetchAvailablePeriodsUseCase()
-            val availableStatuses = fetchAvailableStatusesUseCase()
-            val availableTypes = fetchAvailableTypesUseCase()
+            val availablePeriods = remoteRepository.getAvailablePeriods()
+            val availableStatuses = remoteRepository.getAvailableStatuses()
+            val availableTypes = remoteRepository.getAvailableTypes()
 
             cacheInDatabaseUseCase(
                 availablePeriods.getOrDefault(emptyList()),

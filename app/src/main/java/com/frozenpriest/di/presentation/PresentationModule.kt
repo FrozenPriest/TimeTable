@@ -4,14 +4,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.savedstate.SavedStateRegistryOwner
 import com.frozenpriest.data.local.dao.RecordsDao
 import com.frozenpriest.data.remote.DoctorScheduleApi
+import com.frozenpriest.data.remote.RemoteRepository
+import com.frozenpriest.data.remote.RemoteRepositoryImpl
 import com.frozenpriest.domain.usecase.CacheInDatabaseUseCase
 import com.frozenpriest.domain.usecase.CacheInDatabaseUseCaseImpl
-import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
-import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCaseImpl
-import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCaseImpl
-import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCaseImpl
 import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCaseImpl
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
@@ -33,16 +29,8 @@ class PresentationModule(private val savedStateRegistryOwner: SavedStateRegistry
         FetchScheduleUseCaseImpl(doctorScheduleApi)
 
     @Provides
-    fun provideFetchAvailableTypesUseCase(doctorScheduleApi: DoctorScheduleApi): FetchAvailableTypesUseCase =
-        FetchAvailableTypesUseCaseImpl(doctorScheduleApi)
-
-    @Provides
-    fun provideFetchAvailableStatusesUseCase(doctorScheduleApi: DoctorScheduleApi): FetchAvailableStatusesUseCase =
-        FetchAvailableStatusesUseCaseImpl(doctorScheduleApi)
-
-    @Provides
-    fun provideFetchAvailablePeriodsUseCase(doctorScheduleApi: DoctorScheduleApi): FetchAvailablePeriodsUseCase =
-        FetchAvailablePeriodsUseCaseImpl(doctorScheduleApi)
+    fun provideRemoteRepository(doctorScheduleApi: DoctorScheduleApi): RemoteRepository =
+        RemoteRepositoryImpl(doctorScheduleApi)
 
     @Provides
     fun provideCacheInDatabaseUseCase(dao: RecordsDao): CacheInDatabaseUseCase =
