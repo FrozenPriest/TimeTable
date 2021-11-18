@@ -7,6 +7,7 @@ import com.frozenpriest.data.remote.DoctorScheduleApi
 import com.frozenpriest.data.remote.response.AvailablePeriod
 import com.frozenpriest.data.remote.response.AvailableStatus
 import com.frozenpriest.data.remote.response.AvailableType
+import com.frozenpriest.data.remote.response.DaySchedule
 import com.frozenpriest.data.remote.response.DayScheduleResponse
 import com.frozenpriest.data.remote.response.PatientsResponse
 import com.frozenpriest.data.remote.response.RecordsResponse
@@ -138,106 +139,17 @@ class FetchScheduleUseCaseImpl @Inject constructor(
 
         val newDaySchedules = daySchedules.schedules.map { currentDaySchedule ->
             val recs = mutableListOf<Record>()
+            recs.addAll(makeEmptySlotRecords(availablePeriods, currentDaySchedule))
             recs.addAll(
-                availablePeriods.filter {
-                    currentDaySchedule.availablePeriods.contains(it.id)
-                }.map {
-                    Record(
-                        start = it.start,
-                        end = it.end,
-                        recordType = RecordType.EMPTY,
-                        id = null,
-                        status = null,
-                        types = null,
-                        patient = null,
-                        reason = null,
-                        room = null,
-                        backgroundColor = null,
-                        dividerColor = null
-                    )
-                }
+                makeOccupiedRecords(
+                    records,
+                    availableStatuses,
+                    availableTypes,
+                    patients
+                )
             )
-            recs.addAll(
-                records.records.map { record ->
-                    Record(
-                        id = record.id,
-                        status = availableStatuses.find { it.id == record.status },
-                        types = availableTypes.filter { record.types.contains(it.id) },
-                        patient = patients.records.first { it.id == record.patient },
-                        reason = record.reason,
-                        room = record.room,
-                        start = record.start,
-                        end = record.end,
-                        recordType = RecordType.OCCUPIED,
-                        backgroundColor = Color.LTGRAY,
-                        dividerColor = Color.MAGENTA
-                    )
-                }
-            )
-            // берем все периоды, которые не в списке. Крайние сливаем в один
-            var cumulative = -1
-            for (i in availablePeriods.sortedBy { it.start }.indices) {
-                if (!currentDaySchedule.availablePeriods.contains(availablePeriods[i].id)) {
-                    when {
-                        cumulative == -1 -> {
-                            cumulative = i
-                        }
-                        availablePeriods[i - 1].end != availablePeriods[i].start -> {
-                            // add prev group
-                            recs.add(
-                                Record(
-                                    start = availablePeriods[cumulative].start,
-                                    end = availablePeriods[i - 1].end,
-                                    recordType = RecordType.NO_SHIFT,
-                                    id = null,
-                                    status = null,
-                                    types = null,
-                                    patient = null,
-                                    reason = null,
-                                    room = null,
-                                    backgroundColor = null,
-                                    dividerColor = null
-                                )
-                            )
-                            cumulative = i
-                        }
-                        i == availablePeriods.lastIndex -> {
-                            recs.add(
-                                Record(
-                                    start = availablePeriods[cumulative].start,
-                                    end = availablePeriods[i].end,
-                                    recordType = RecordType.NO_SHIFT,
-                                    id = null,
-                                    status = null,
-                                    types = null,
-                                    patient = null,
-                                    reason = null,
-                                    room = null,
-                                    backgroundColor = null,
-                                    dividerColor = null
-                                )
-                            )
-                        }
-                    }
-                } else if (cumulative != -1) {
-                    recs.add(
-                        Record(
-                            start = availablePeriods[cumulative].start,
-                            end = availablePeriods[i - 1].end,
-                            recordType = RecordType.NO_SHIFT,
-                            id = null,
-                            status = null,
-                            types = null,
-                            patient = null,
-                            reason = null,
-                            room = null,
-                            backgroundColor = null,
-                            dividerColor = null
-                        )
-                    )
-                    cumulative = -1
-                }
-            }
+            recs.addAll(makeNoShiftRecords(availablePeriods, currentDaySchedule))
+
             LocalDaySchedule(
                 id = currentDaySchedule.id,
                 date = isoDateFormatter.stringToDate(currentDaySchedule.date.date),
@@ -246,4 +158,103 @@ class FetchScheduleUseCaseImpl @Inject constructor(
         }
         return newDaySchedules
     }
+
+    private fun makeOccupiedRecords(
+        records: RecordsResponse,
+        availableStatuses: List<AvailableStatus>,
+        availableTypes: List<AvailableType>,
+        patients: PatientsResponse
+    ): List<Record> {
+        return records.records.map { record ->
+            Record(
+                id = record.id,
+                status = availableStatuses.find { it.id == record.status },
+                types = availableTypes.filter { record.types.contains(it.id) },
+                patient = patients.records.first { it.id == record.patient },
+                reason = record.reason,
+                room = record.room,
+                start = record.start,
+                end = record.end,
+                recordType = RecordType.OCCUPIED,
+                backgroundColor = Color.LTGRAY,
+                dividerColor = Color.MAGENTA
+            )
+        }
+    }
+
+    private fun makeEmptySlotRecords(
+        availablePeriods: List<AvailablePeriod>,
+        currentDaySchedule: DaySchedule
+    ): List<Record> {
+        return availablePeriods.filter {
+            currentDaySchedule.availablePeriods.contains(it.id)
+        }.map {
+            Record(
+                start = it.start,
+                end = it.end,
+                recordType = RecordType.EMPTY,
+                id = null,
+                status = null,
+                types = null,
+                patient = null,
+                reason = null,
+                room = null,
+                backgroundColor = null,
+                dividerColor = null
+            )
+        }
+    }
+
+    private fun makeNoShiftRecords(
+        availablePeriods: List<AvailablePeriod>,
+        currentDaySchedule: DaySchedule,
+    ): List<Record> {
+        val result = mutableListOf<Record>()
+        var cumulative = -1
+        for (i in availablePeriods.sortedBy { it.start }.indices) {
+            if (!currentDaySchedule.availablePeriods.contains(availablePeriods[i].id)) {
+                when {
+                    cumulative == -1 -> {
+                        cumulative = i
+                    }
+                    availablePeriods[i - 1].end != availablePeriods[i].start -> {
+                        // add prev group
+                        result.add(
+                            makeNoShiftRecord(availablePeriods, cumulative, i - 1)
+                        )
+                        cumulative = i
+                    }
+                    i == availablePeriods.lastIndex -> {
+                        result.add(
+                            makeNoShiftRecord(availablePeriods, cumulative, i)
+                        )
+                    }
+                }
+            } else if (cumulative != -1) {
+                result.add(
+                    makeNoShiftRecord(availablePeriods, cumulative, i - 1)
+                )
+                cumulative = -1
+            }
+        }
+        return result
+    }
+
+    private fun makeNoShiftRecord(
+        availablePeriods: List<AvailablePeriod>,
+        cumulative: Int,
+        i: Int
+    ) = Record(
+        start = availablePeriods[cumulative].start,
+        end = availablePeriods[i].end,
+        recordType = RecordType.NO_SHIFT,
+        id = null,
+        status = null,
+        types = null,
+        patient = null,
+        reason = null,
+        room = null,
+        backgroundColor = null,
+        dividerColor = null
+    )
 }

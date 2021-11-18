@@ -2,6 +2,7 @@ package com.frozenpriest.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.Query
 import androidx.room.Transaction
 import com.frozenpriest.data.local.entities.AvailablePeriodEntity
@@ -28,16 +29,16 @@ interface RecordsDao {
     fun getFullRecordsInPeriodBlocking(start: Long, end: Long): List<FullRecord>
 
     @Transaction
-    @Insert
+    @Insert(onConflict = IGNORE)
     fun insertRecords(records: List<RecordEntity>)
 
-    @Insert
+    @Insert(onConflict = IGNORE)
     fun insertStatuses(status: List<AvailableStatusEntity>)
 
-    @Insert
+    @Insert(onConflict = IGNORE)
     fun insertPeriods(status: List<AvailablePeriodEntity>)
 
-    @Insert
+    @Insert(onConflict = IGNORE)
     fun insertTypes(types: List<AvailableTypeEntity>)
 
     @Query("select * from doctors where id like :id limit 1")
