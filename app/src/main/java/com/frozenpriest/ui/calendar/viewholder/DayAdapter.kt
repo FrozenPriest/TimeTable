@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.frozenpriest.R
-import com.frozenpriest.data.local.Record
-import com.frozenpriest.data.local.RecordType
+import com.frozenpriest.domain.model.Record
+import com.frozenpriest.domain.model.RecordType
 import com.frozenpriest.utils.TextUtils
 import javax.inject.Inject
 

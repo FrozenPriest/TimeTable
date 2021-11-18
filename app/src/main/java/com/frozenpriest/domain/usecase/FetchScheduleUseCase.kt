@@ -3,10 +3,6 @@
 package com.frozenpriest.domain.usecase
 
 import android.graphics.Color
-import com.frozenpriest.data.local.LocalDaySchedule
-import com.frozenpriest.data.local.LocalDoctorSchedule
-import com.frozenpriest.data.local.Record
-import com.frozenpriest.data.local.RecordType
 import com.frozenpriest.data.remote.DoctorScheduleApi
 import com.frozenpriest.data.remote.response.AvailablePeriod
 import com.frozenpriest.data.remote.response.AvailableStatus
@@ -14,6 +10,10 @@ import com.frozenpriest.data.remote.response.AvailableType
 import com.frozenpriest.data.remote.response.DayScheduleResponse
 import com.frozenpriest.data.remote.response.PatientsResponse
 import com.frozenpriest.data.remote.response.RecordsResponse
+import com.frozenpriest.domain.model.LocalDaySchedule
+import com.frozenpriest.domain.model.LocalDoctorSchedule
+import com.frozenpriest.domain.model.Record
+import com.frozenpriest.domain.model.RecordType
 import com.frozenpriest.utils.IsoDateFormatter
 import timber.log.Timber
 import javax.inject.Inject

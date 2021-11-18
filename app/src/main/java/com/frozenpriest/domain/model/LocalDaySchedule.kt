@@ -1,4 +1,4 @@
-package com.frozenpriest.data.local
+package com.frozenpriest.domain.model
 
 import java.util.Date
 

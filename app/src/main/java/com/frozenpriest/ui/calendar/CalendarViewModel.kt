@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.frozenpriest.data.local.LocalDoctorSchedule
+import com.frozenpriest.domain.model.LocalDoctorSchedule
 import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
 import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
 import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase

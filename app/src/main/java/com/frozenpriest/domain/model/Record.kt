@@ -1,4 +1,4 @@
-package com.frozenpriest.data.local
+package com.frozenpriest.domain.model
 
 import com.frozenpriest.data.remote.response.AvailableStatus
 import com.frozenpriest.data.remote.response.AvailableType
