@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.frozenpriest.data.local.converters
 
 import com.frozenpriest.data.local.entities.AvailablePeriodEntity
@@ -85,21 +87,21 @@ fun Record.toFullRecord(
 ): FullRecord {
     return FullRecord(
         recordEntity = this.toEntity(date, dayId),
-        statusEntity = this.status?.toEntity() ?: throw NullPointerException("No"),
-        patientEntity = this.patient?.toEntity() ?: throw NullPointerException("No"),
-        availableTypes = this.types?.map { it.toEntity() } ?: throw NullPointerException("No"),
+        statusEntity = this.status?.toEntity()!!,
+        patientEntity = this.patient?.toEntity()!!,
+        availableTypes = this.types?.map { it.toEntity() }!!,
 
     )
 }
 
 fun Record.toEntity(date: Long, dayId: String): RecordEntity {
     return RecordEntity(
-        id = this.id ?: throw NullPointerException("No"),
-        statusId = this.status?.id ?: throw NullPointerException("No"),
-        types = this.types?.map { it.id } ?: throw NullPointerException("No"),
-        patientId = this.patient?.id ?: throw NullPointerException("No"),
-        reason = this.reason ?: throw NullPointerException("No"),
-        room = this.room ?: throw NullPointerException("No"),
+        id = this.id!!,
+        statusId = this.status?.id!!,
+        types = this.types?.map { it.id }!!,
+        patientId = this.patient?.id!!,
+        reason = this.reason!!,
+        room = this.room!!,
         date = date,
         start = this.start,
         end = this.end,

@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions")
 package com.frozenpriest.data.local.dao
 
 import androidx.room.Dao
