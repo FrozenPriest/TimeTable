@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.frozenpriest.R
-import com.frozenpriest.data.local.LocalDaySchedule
-import com.frozenpriest.data.local.Record
 import com.frozenpriest.databinding.CalendarFragmentBinding
+import com.frozenpriest.domain.model.LocalDaySchedule
+import com.frozenpriest.domain.model.Record
 import com.frozenpriest.ui.calendar.viewholder.DayAdapter
 import com.frozenpriest.ui.common.BaseFragment
 import com.frozenpriest.ui.common.DialogManager

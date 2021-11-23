@@ -1,12 +1,7 @@
-@file:Suppress("LongParameterList", "MaxLineLength")
+@file:Suppress("LongParameterList")
 
 package com.frozenpriest.domain.usecase
 
-import android.graphics.Color
-import com.frozenpriest.data.local.LocalDaySchedule
-import com.frozenpriest.data.local.LocalDoctorSchedule
-import com.frozenpriest.data.local.Record
-import com.frozenpriest.data.local.RecordType
 import com.frozenpriest.data.remote.DoctorScheduleApi
 import com.frozenpriest.data.remote.response.AvailablePeriod
 import com.frozenpriest.data.remote.response.AvailableStatus
@@ -14,6 +9,10 @@ import com.frozenpriest.data.remote.response.AvailableType
 import com.frozenpriest.data.remote.response.DayScheduleResponse
 import com.frozenpriest.data.remote.response.PatientsResponse
 import com.frozenpriest.data.remote.response.RecordsResponse
+import com.frozenpriest.domain.RecordCreator
+import com.frozenpriest.domain.model.LocalDaySchedule
+import com.frozenpriest.domain.model.LocalDoctorSchedule
+import com.frozenpriest.domain.model.Record
 import com.frozenpriest.utils.IsoDateFormatter
 import timber.log.Timber
 import javax.inject.Inject
@@ -30,8 +29,10 @@ interface FetchScheduleUseCase {
     ): Result<LocalDoctorSchedule>
 }
 
+// следует отрефакторить
 class FetchScheduleUseCaseImpl @Inject constructor(
-    private val doctorScheduleApi: DoctorScheduleApi
+    private val doctorScheduleApi: DoctorScheduleApi,
+    private val recordsCreator: RecordCreator
 ) : FetchScheduleUseCase {
     override suspend operator fun invoke(
         doctorId: String,
@@ -49,7 +50,7 @@ class FetchScheduleUseCaseImpl @Inject constructor(
                 doctorScheduleApi.getDoctor("{ \"objectId\":\"$doctorId\" }").schedule.first()
 
             // getDaySchedules() with doctor id and start-finish dates
-            val (startDate, endDate) = isoDateFormatter.getWeekStartEndDates()
+            val (startDate, endDate) = isoDateFormatter.getWeekStartEndDates(week, month, year)
 
             val daySchedules = doctorScheduleApi.getDaySchedules(
                 formatDoctorScheduleRequest(doctorId, startDate, endDate)
@@ -88,8 +89,14 @@ class FetchScheduleUseCaseImpl @Inject constructor(
         }
     }
 
-    private fun formatDoctorScheduleRequest(doctorId: String, startDate: String, endDate: String): String {
-        return "{ \"doctor\":\"$doctorId\",\"date\":{ \"\$gte\":{ \"__type\":\"Date\",\"iso\":\"$startDate\" },\"\$lte\":{ \"__type\":\"Date\",\"iso\":\"$endDate\" } } }"
+    private fun formatDoctorScheduleRequest(
+        doctorId: String,
+        startDate: String,
+        endDate: String
+    ): String {
+        return "{ \"doctor\":\"$doctorId\",\"date\":{ \"\$gte\":" +
+            "{ \"__type\":\"Date\",\"iso\":\"$startDate\" }," +
+            "\"\$lte\":{ \"__type\":\"Date\",\"iso\":\"$endDate\" } } }"
     }
 
     private suspend fun getRecordsFromDaySchedules(daySchedules: DayScheduleResponse): RecordsResponse {
@@ -121,7 +128,7 @@ class FetchScheduleUseCaseImpl @Inject constructor(
     }
 
     private fun buildDaySchedules(
-        daySchedules: DayScheduleResponse,
+        daySchedulesResponse: DayScheduleResponse,
         records: RecordsResponse,
         availablePeriods: List<AvailablePeriod>,
         availableStatuses: List<AvailableStatus>,
@@ -130,48 +137,38 @@ class FetchScheduleUseCaseImpl @Inject constructor(
     ): List<LocalDaySchedule> {
         val isoDateFormatter = IsoDateFormatter()
 
-        val newDaySchedules = daySchedules.schedules.map { currentDaySchedule ->
+        val newDaySchedules = daySchedulesResponse.schedules.map { currentDaySchedule ->
             val recs = mutableListOf<Record>()
             recs.addAll(
-                availablePeriods.filter {
-                    currentDaySchedule.availablePeriods.contains(it.id)
-                }.map {
-                    Record(
-                        start = it.start,
-                        end = it.end,
-                        recordType = RecordType.EMPTY,
-                        id = null,
-                        status = null,
-                        types = null,
-                        patient = null,
-                        reason = null,
-                        room = null,
-                        backgroundColor = null,
-                        dividerColor = null
-                    )
-                }
+                recordsCreator.makeEmptySlotRecords(
+                    availablePeriods,
+                    currentDaySchedule.availablePeriods
+                )
             )
             recs.addAll(
-                records.records.map { record ->
-                    Record(
-                        id = record.id,
-                        status = availableStatuses.find { it.id == record.status },
-                        types = availableTypes.filter { record.types.contains(it.id) },
-                        patient = patients.records.first { it.id == record.patient },
-                        reason = record.reason,
-                        room = record.room,
-                        start = record.start,
-                        end = record.end,
-                        recordType = RecordType.OCCUPIED,
-                        backgroundColor = Color.LTGRAY,
-                        dividerColor = Color.MAGENTA
-                    )
-                }
+                recordsCreator.makeOccupiedRecords(
+                    records,
+                    availableStatuses,
+                    availableTypes,
+                    patients
+                )
             )
+            recs.addAll(
+                recordsCreator.makeNoShiftRecords(
+                    availablePeriods,
+                    currentDaySchedule.availablePeriods
+                )
+            )
+
             LocalDaySchedule(
                 id = currentDaySchedule.id,
                 date = isoDateFormatter.stringToDate(currentDaySchedule.date.date),
-                records = recs.sortedBy { it.start }
+                records = recs.sortedBy { it.start },
+                availablePeriods = availablePeriods.filter {
+                    currentDaySchedule.availablePeriods.contains(
+                        it.id
+                    )
+                }
             )
         }
         return newDaySchedules

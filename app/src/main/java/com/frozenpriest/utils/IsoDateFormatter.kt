@@ -3,14 +3,22 @@ package com.frozenpriest.utils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.GregorianCalendar
 import java.util.Locale
 
 class IsoDateFormatter {
 
-    fun getWeekStartEndDates(): Pair<String, String> {
+    fun getWeekStartEndDates(week: Int, month: Int, year: Int): Pair<String, String> {
+        val calendar = GregorianCalendar.getInstance().apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month)
+            set(Calendar.WEEK_OF_MONTH, week)
+            set(Calendar.DAY_OF_WEEK, 2)
+        }
+        val date = calendar.time
 
-        val startDate = Date().getDateOfDayOfWeek(Calendar.MONDAY)
-        val endDate = Date().getDateOfDayOfWeek(Calendar.SUNDAY)
+        val startDate = date.getDateOfDayOfWeek(Calendar.MONDAY)
+        val endDate = date.getDateOfDayOfWeek(Calendar.SUNDAY)
 
 // 2021-11-319T14:11:21.Nov+0300 //// 2011-08-21T18:02:52.249Z
         return Pair(dateToString(startDate), dateToString(endDate))

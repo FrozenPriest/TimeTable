@@ -2,17 +2,19 @@ package com.frozenpriest.di.presentation
 
 import androidx.fragment.app.FragmentManager
 import androidx.savedstate.SavedStateRegistryOwner
+import com.frozenpriest.data.local.dao.RecordsDao
 import com.frozenpriest.data.remote.DoctorScheduleApi
-import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCase
-import com.frozenpriest.domain.usecase.FetchAvailablePeriodsUseCaseImpl
-import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableStatusesUseCaseImpl
-import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCase
-import com.frozenpriest.domain.usecase.FetchAvailableTypesUseCaseImpl
+import com.frozenpriest.data.remote.RemoteRepository
+import com.frozenpriest.data.remote.RemoteRepositoryImpl
+import com.frozenpriest.domain.RecordCreator
+import com.frozenpriest.domain.usecase.CacheInDatabaseUseCase
+import com.frozenpriest.domain.usecase.CacheInDatabaseUseCaseImpl
 import com.frozenpriest.domain.usecase.FetchScheduleUseCase
 import com.frozenpriest.domain.usecase.FetchScheduleUseCaseImpl
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCase
 import com.frozenpriest.domain.usecase.GetCurrentDayUseCaseImpl
+import com.frozenpriest.domain.usecase.LoadCachedUseCase
+import com.frozenpriest.domain.usecase.LoadCachedUseCaseImpl
 import com.frozenpriest.ui.common.DialogManager
 import dagger.Module
 import dagger.Provides
@@ -23,24 +25,31 @@ class PresentationModule(private val savedStateRegistryOwner: SavedStateRegistry
     fun savedStateRegistryOwner() = savedStateRegistryOwner
 
     @Provides
+    fun provideRecordCreator(): RecordCreator = RecordCreator()
+
+    @Provides
     fun provideGetCurrentDateUseCase(): GetCurrentDayUseCase = GetCurrentDayUseCaseImpl()
 
     @Provides
-    fun provideFetchScheduleUseCase(doctorScheduleApi: DoctorScheduleApi): FetchScheduleUseCase =
-        FetchScheduleUseCaseImpl(doctorScheduleApi)
+    fun provideFetchScheduleUseCase(
+        doctorScheduleApi: DoctorScheduleApi,
+        recordCreator: RecordCreator
+    ): FetchScheduleUseCase =
+        FetchScheduleUseCaseImpl(doctorScheduleApi, recordCreator)
 
     @Provides
-    fun provideFetchAvailableTypesUseCase(doctorScheduleApi: DoctorScheduleApi): FetchAvailableTypesUseCase =
-        FetchAvailableTypesUseCaseImpl(doctorScheduleApi)
+    fun provideRemoteRepository(doctorScheduleApi: DoctorScheduleApi): RemoteRepository =
+        RemoteRepositoryImpl(doctorScheduleApi)
 
     @Provides
-    fun provideFetchAvailableStatusesUseCase(doctorScheduleApi: DoctorScheduleApi): FetchAvailableStatusesUseCase =
-        FetchAvailableStatusesUseCaseImpl(doctorScheduleApi)
+    fun provideCacheInDatabaseUseCase(dao: RecordsDao): CacheInDatabaseUseCase =
+        CacheInDatabaseUseCaseImpl(dao)
 
     @Provides
-    fun provideFetchAvailablePeriodsUseCase(doctorScheduleApi: DoctorScheduleApi): FetchAvailablePeriodsUseCase =
-        FetchAvailablePeriodsUseCaseImpl(doctorScheduleApi)
+    fun provideLoadCachedUseCase(dao: RecordsDao, recordCreator: RecordCreator): LoadCachedUseCase =
+        LoadCachedUseCaseImpl(dao, recordCreator)
 
     @Provides
-    fun provideDialogManager(fragmentManager: FragmentManager): DialogManager = DialogManager(fragmentManager)
+    fun provideDialogManager(fragmentManager: FragmentManager): DialogManager =
+        DialogManager(fragmentManager)
 }

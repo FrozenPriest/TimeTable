@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.frozenpriest.R
-import com.frozenpriest.data.local.Record
-import com.frozenpriest.data.local.RecordType
+import com.frozenpriest.domain.model.Record
+import com.frozenpriest.domain.model.RecordType
 import com.frozenpriest.utils.TextUtils
 import javax.inject.Inject
 
@@ -62,6 +62,9 @@ class DayAdapter @Inject constructor(
             RecordType.EMPTY.ordinal -> {
                 (holder as EmptyViewHolder).bindView(position)
             }
+            RecordType.NO_SHIFT.ordinal -> {
+                (holder as NoShiftViewHolder).bindView(position)
+            }
             RecordType.OCCUPIED.ordinal -> {
                 (holder as FilledViewHolder).bindView(position)
             }
@@ -76,8 +79,8 @@ class DayAdapter @Inject constructor(
         return differ.currentList[position].recordType.ordinal
     }
 
-    private val emptyDividerColor = ContextCompat.getColor(context, R.color.divider_empty)
-    private val noRecordColor = ContextCompat.getColor(context, R.color.no_record_background)
+    private val noShiftDividerColor = ContextCompat.getColor(context, R.color.divider_empty)
+    private val noShiftColor = ContextCompat.getColor(context, R.color.no_record_background)
 
     inner class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val layout: ConstraintLayout = view.findViewById(R.id.constraintLayout)
@@ -88,15 +91,15 @@ class DayAdapter @Inject constructor(
         fun bindView(position: Int) {
             differ.currentList[position].let {
                 layout.setBackgroundColor(noRecordColor)
-                divider.setBackgroundColor(emptyDividerColor)
+                divider.setBackgroundColor(noRecordColor)
 
-                textViewName.text = itemView.resources.getString(R.string.no_shift)
-                textViewTime.text = TextUtils.formatTimePeriod(it.start, (it.end - it.start) / TextUtils.secInMinute)
+                textViewName.text = itemView.resources.getString(R.string.free_space)
+                textViewTime.text = TextUtils.formatTimePeriod(it.start, (it.end - it.start))
             }
         }
     }
 
-    private val noShiftColor = ContextCompat.getColor(context, R.color.divider_no_shift)
+    private val noRecordColor = ContextCompat.getColor(context, R.color.divider_no_shift)
 
     inner class NoShiftViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val layout: ConstraintLayout = view.findViewById(R.id.constraintLayout)
@@ -107,12 +110,12 @@ class DayAdapter @Inject constructor(
         fun bindView(position: Int) {
             differ.currentList[position].let {
                 layout.setBackgroundColor(noShiftColor)
-                divider.setBackgroundColor(noShiftColor)
+                divider.setBackgroundColor(noShiftDividerColor)
 
                 textViewName.text = itemView.resources.getString(R.string.no_shift)
                 textViewTime.text = TextUtils.formatTimePeriod(
                     it.start,
-                    (it.end - it.start) / TextUtils.secInMinute
+                    (it.end - it.start)
                 )
             }
         }
