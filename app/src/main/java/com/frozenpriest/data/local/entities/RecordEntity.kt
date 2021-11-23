@@ -13,13 +13,13 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = PatientEntity::class,
             parentColumns = ["id"],
-            childColumns = ["id"],
+            childColumns = ["patientId"],
             onDelete = CASCADE
         ),
         ForeignKey(
             entity = AvailableStatusEntity::class,
             parentColumns = ["id"],
-            childColumns = ["id"],
+            childColumns = ["status"],
             onDelete = RESTRICT
         )
     ]
@@ -33,7 +33,7 @@ data class RecordEntity(
     @ColumnInfo(name = "types")
     val types: List<String>, // available type ids
     @ColumnInfo(name = "patientId")
-    val patient: String, // associated patient id
+    val patientId: String, // associated patient id
     @ColumnInfo(name = "reason")
     val reason: String, // record's reason
     @ColumnInfo(name = "room")
@@ -44,4 +44,6 @@ data class RecordEntity(
     val start: Int, // Start time in seconds after 00:00
     @ColumnInfo(name = "end")
     val end: Int, // End time in seconds after 00:00
+    @ColumnInfo(name = "dayId")
+    val dayId: String
 )

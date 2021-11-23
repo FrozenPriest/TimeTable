@@ -9,5 +9,5 @@ data class DoctorWithRecords(
     @Relation(
         parentColumn = "id",
         entityColumn = "id"
-    ) val fullRecords: List<FullRecord>,
+    ) val records: List<FullRecord>,
 )

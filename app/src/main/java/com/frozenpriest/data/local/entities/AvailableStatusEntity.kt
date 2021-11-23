@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "statuses")
 data class AvailableStatusEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "id")

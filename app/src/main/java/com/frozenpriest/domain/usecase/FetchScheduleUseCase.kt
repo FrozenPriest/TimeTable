@@ -2,19 +2,17 @@
 
 package com.frozenpriest.domain.usecase
 
-import android.graphics.Color
 import com.frozenpriest.data.remote.DoctorScheduleApi
 import com.frozenpriest.data.remote.response.AvailablePeriod
 import com.frozenpriest.data.remote.response.AvailableStatus
 import com.frozenpriest.data.remote.response.AvailableType
-import com.frozenpriest.data.remote.response.DaySchedule
 import com.frozenpriest.data.remote.response.DayScheduleResponse
 import com.frozenpriest.data.remote.response.PatientsResponse
 import com.frozenpriest.data.remote.response.RecordsResponse
+import com.frozenpriest.domain.RecordCreator
 import com.frozenpriest.domain.model.LocalDaySchedule
 import com.frozenpriest.domain.model.LocalDoctorSchedule
 import com.frozenpriest.domain.model.Record
-import com.frozenpriest.domain.model.RecordType
 import com.frozenpriest.utils.IsoDateFormatter
 import timber.log.Timber
 import javax.inject.Inject
@@ -30,9 +28,11 @@ interface FetchScheduleUseCase {
         availableTypes: List<AvailableType>
     ): Result<LocalDoctorSchedule>
 }
+
 // следует отрефакторить
 class FetchScheduleUseCaseImpl @Inject constructor(
-    private val doctorScheduleApi: DoctorScheduleApi
+    private val doctorScheduleApi: DoctorScheduleApi,
+    private val recordsCreator: RecordCreator
 ) : FetchScheduleUseCase {
     override suspend operator fun invoke(
         doctorId: String,
@@ -50,7 +50,7 @@ class FetchScheduleUseCaseImpl @Inject constructor(
                 doctorScheduleApi.getDoctor("{ \"objectId\":\"$doctorId\" }").schedule.first()
 
             // getDaySchedules() with doctor id and start-finish dates
-            val (startDate, endDate) = isoDateFormatter.getWeekStartEndDates()
+            val (startDate, endDate) = isoDateFormatter.getWeekStartEndDates(week, month, year)
 
             val daySchedules = doctorScheduleApi.getDaySchedules(
                 formatDoctorScheduleRequest(doctorId, startDate, endDate)
@@ -128,7 +128,7 @@ class FetchScheduleUseCaseImpl @Inject constructor(
     }
 
     private fun buildDaySchedules(
-        daySchedules: DayScheduleResponse,
+        daySchedulesResponse: DayScheduleResponse,
         records: RecordsResponse,
         availablePeriods: List<AvailablePeriod>,
         availableStatuses: List<AvailableStatus>,
@@ -137,124 +137,40 @@ class FetchScheduleUseCaseImpl @Inject constructor(
     ): List<LocalDaySchedule> {
         val isoDateFormatter = IsoDateFormatter()
 
-        val newDaySchedules = daySchedules.schedules.map { currentDaySchedule ->
+        val newDaySchedules = daySchedulesResponse.schedules.map { currentDaySchedule ->
             val recs = mutableListOf<Record>()
-            recs.addAll(makeEmptySlotRecords(availablePeriods, currentDaySchedule))
             recs.addAll(
-                makeOccupiedRecords(
+                recordsCreator.makeEmptySlotRecords(
+                    availablePeriods,
+                    currentDaySchedule.availablePeriods
+                )
+            )
+            recs.addAll(
+                recordsCreator.makeOccupiedRecords(
                     records,
                     availableStatuses,
                     availableTypes,
                     patients
                 )
             )
-            recs.addAll(makeNoShiftRecords(availablePeriods, currentDaySchedule))
+            recs.addAll(
+                recordsCreator.makeNoShiftRecords(
+                    availablePeriods,
+                    currentDaySchedule.availablePeriods
+                )
+            )
 
             LocalDaySchedule(
                 id = currentDaySchedule.id,
                 date = isoDateFormatter.stringToDate(currentDaySchedule.date.date),
-                records = recs.sortedBy { it.start }
+                records = recs.sortedBy { it.start },
+                availablePeriods = availablePeriods.filter {
+                    currentDaySchedule.availablePeriods.contains(
+                        it.id
+                    )
+                }
             )
         }
         return newDaySchedules
     }
-
-    private fun makeOccupiedRecords(
-        records: RecordsResponse,
-        availableStatuses: List<AvailableStatus>,
-        availableTypes: List<AvailableType>,
-        patients: PatientsResponse
-    ): List<Record> {
-        return records.records.map { record ->
-            Record(
-                id = record.id,
-                status = availableStatuses.find { it.id == record.status },
-                types = availableTypes.filter { record.types.contains(it.id) },
-                patient = patients.records.first { it.id == record.patient },
-                reason = record.reason,
-                room = record.room,
-                start = record.start,
-                end = record.end,
-                recordType = RecordType.OCCUPIED,
-                backgroundColor = Color.LTGRAY,
-                dividerColor = Color.MAGENTA
-            )
-        }
-    }
-
-    private fun makeEmptySlotRecords(
-        availablePeriods: List<AvailablePeriod>,
-        currentDaySchedule: DaySchedule
-    ): List<Record> {
-        return availablePeriods.filter {
-            currentDaySchedule.availablePeriods.contains(it.id)
-        }.map {
-            Record(
-                start = it.start,
-                end = it.end,
-                recordType = RecordType.EMPTY,
-                id = null,
-                status = null,
-                types = null,
-                patient = null,
-                reason = null,
-                room = null,
-                backgroundColor = null,
-                dividerColor = null
-            )
-        }
-    }
-
-    private fun makeNoShiftRecords(
-        availablePeriods: List<AvailablePeriod>,
-        currentDaySchedule: DaySchedule,
-    ): List<Record> {
-        val result = mutableListOf<Record>()
-        var cumulative = -1
-        for (i in availablePeriods.sortedBy { it.start }.indices) {
-            if (!currentDaySchedule.availablePeriods.contains(availablePeriods[i].id)) {
-                when {
-                    cumulative == -1 -> {
-                        cumulative = i
-                    }
-                    availablePeriods[i - 1].end != availablePeriods[i].start -> {
-                        // add prev group
-                        result.add(
-                            makeNoShiftRecord(availablePeriods, cumulative, i - 1)
-                        )
-                        cumulative = i
-                    }
-                    i == availablePeriods.lastIndex -> {
-                        result.add(
-                            makeNoShiftRecord(availablePeriods, cumulative, i)
-                        )
-                    }
-                }
-            } else if (cumulative != -1) {
-                result.add(
-                    makeNoShiftRecord(availablePeriods, cumulative, i - 1)
-                )
-                cumulative = -1
-            }
-        }
-        return result
-    }
-
-    private fun makeNoShiftRecord(
-        availablePeriods: List<AvailablePeriod>,
-        cumulative: Int,
-        i: Int
-    ) = Record(
-        start = availablePeriods[cumulative].start,
-        end = availablePeriods[i].end,
-        recordType = RecordType.NO_SHIFT,
-        id = null,
-        status = null,
-        types = null,
-        patient = null,
-        reason = null,
-        room = null,
-        backgroundColor = null,
-        dividerColor = null
-    )
 }

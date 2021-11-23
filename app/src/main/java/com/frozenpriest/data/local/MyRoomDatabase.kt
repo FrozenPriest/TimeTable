@@ -8,6 +8,7 @@ import com.frozenpriest.data.local.dao.RecordsDao
 import com.frozenpriest.data.local.entities.AvailablePeriodEntity
 import com.frozenpriest.data.local.entities.AvailableStatusEntity
 import com.frozenpriest.data.local.entities.AvailableTypeEntity
+import com.frozenpriest.data.local.entities.DayEntity
 import com.frozenpriest.data.local.entities.DoctorEntity
 import com.frozenpriest.data.local.entities.PatientEntity
 import com.frozenpriest.data.local.entities.RecordEntity
@@ -17,6 +18,7 @@ import com.frozenpriest.data.local.entities.crossref.RecordAvailableTypeCrossRef
 @Database(
     entities = [
         RecordEntity::class,
+        DayEntity::class,
         PatientEntity::class,
         AvailableStatusEntity::class,
         AvailableTypeEntity::class,
@@ -26,7 +28,7 @@ import com.frozenpriest.data.local.entities.crossref.RecordAvailableTypeCrossRef
 
         DoctorEntity::class
     ],
-    version = 1,
+    version = 4,
     exportSchema = false
 )
 abstract class MyRoomDatabase : RoomDatabase() {
